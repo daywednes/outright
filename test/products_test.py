@@ -33,7 +33,8 @@ class Test(unittest.TestCase):
         
     def test_recommend_next_product(self):
         self._pm.clear()
-        print(self._pm.recommend_next_product([1, 33, 22]))
+#        self.test_add_products()
+        print(self._pm.recommend_next_product([1, 2, 3]))
         
         
 

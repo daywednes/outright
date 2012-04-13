@@ -40,13 +40,13 @@ class ProductsManager:
                                    {'$inc': {TIMES: times}},
                                    True
                                    )
-            print('succeeded')
+            print('add: succeeded')
             return True
         except pyerrors.OperationFailure as ex:
             print(ex.value)
         except pyerrors.PyMongoError as ex:
             print(ex.value)
-        print('failed')
+        print('add: failed')
         return False
 
     def insert_product_list(self, prod_list):
@@ -62,13 +62,13 @@ class ProductsManager:
                     self._purchased.insert(json_list)
                     del json_list[:]
                     print('just inserted another 20000 items')
-            print('succeeded')
+            print('insert_product_list: succeeded')
             return True
         except pyerrors.OperationFailure as ex:
             print(ex.value)
         except pyerrors.PyMongoError as ex:
             print(ex.value)
-        print('failed')
+        print('insert_product_list: failed')
         return False
     
     def add_product_list(self, prod_list):
@@ -78,8 +78,8 @@ class ProductsManager:
         success = True
         for item in prod_list:
             success &= self.add(item[0], item[1], item[2])
-        if success: print('succeeded')
-        else: print('failed')
+        if success: print('add_product_list: succeeded')
+        else: print('add_product_list: failed')
         
         return success
             
@@ -94,13 +94,13 @@ class ProductsManager:
             self._purchased.remove({PROD1: prod2_name, PROD2: prod1_name},
                                    True
                                    )
-            print('succeeded')
+            print('remove: succeeded')
             return True
         except pyerrors.OperationFailure as ex:
             print(ex.value)
         except pyerrors.PyMongoError as ex:
             print(ex.value)
-        print('failed')
+        print('remove: failed')
         return False
             
     def assign(self, prod1_name, prod2_name, times):
@@ -116,14 +116,23 @@ class ProductsManager:
                                    {'$set': {TIMES: times}},
                                    True
                                    )
-            print('succeeded')
+            print('assign: succeeded')
             return True
         except pyerrors.OperationFailure as ex:
             print(ex.value)
         except pyerrors.PyMongoError as ex:
             print(ex.value)
-        print('failed')
+        print('assign: failed')
         return False
+    
+    def how_many(self, prod):
+        try:
+            return self._purchased.find({PROD1: prod}).count()
+        except pyerrors.OperationFailure as ex:
+            print(ex.value)
+        except pyerrors.PyMongoError as ex:
+            print(ex.value)
+        
             
     def recommend_next_product(self, prod_list):
         """
@@ -136,7 +145,8 @@ class ProductsManager:
                     scores[item[PROD2]] += math.log(item[TIMES])
         if len(scores) == 0:
             return None
-        return max(scores.items(), key = operator.itemgetter(1))[0]
+        max_tuple = max(scores.items(), key = operator.itemgetter(1))
+        return max_tuple[0]
 
     def get_times(self, prod1_name, prod2_name):
         """
@@ -154,14 +164,20 @@ class ProductsManager:
     def clear(self):
         try:
             self._purchased.remove()
-            print('succeeded')
+            print('clear: succeeded')
             return True
         except pyerrors.OperationFailure as ex:
             print(ex.value)
         except pyerrors.PyMongoError as ex:
             print(ex.value)
-        print('failed')
+        print('clear: failed')
         return False
-        
-pm = ProductsManager()
-pm.remove('2', '6')
+
+#pm = ProductsManager()
+#prod_list = []
+#with open('../test/products.txt') as f:
+#    for line in f:
+#        prod_list.append(tuple(map(int, line.split())))
+#    pm.insert_product_list(prod_list)
+#print(pm.how_many(1))
+#print(pm.recommend_next_product([1,2,3]))
